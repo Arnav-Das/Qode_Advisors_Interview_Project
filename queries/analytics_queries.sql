@@ -1,6 +1,4 @@
--- ============================================================
--- F&O Analytics Queries
--- ============================================================
+-- SQL Queries, Question Answers
 
 -- Q1: Top 10 symbols by OI change across exchanges
 SELECT

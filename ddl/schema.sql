@@ -1,6 +1,4 @@
--- ============================================================
--- F&O Multi-Exchange Database: DDL Script
--- ============================================================
+-- F&O Multi-Exchange Database Schema
 
 -- Exchanges
 CREATE TABLE exchanges (
@@ -55,10 +53,9 @@ CREATE TABLE trades_2023_02 PARTITION OF trades
 CREATE TABLE trades_2023_03 PARTITION OF trades
     FOR VALUES FROM ('2023-03-01') TO ('2023-04-01');
 
--- ─── Indexes ────────────────────────────────────────────────────────────────
+-- Indexes 
 CREATE INDEX idx_trades_timestamp    ON trades (timestamp);
 CREATE INDEX idx_trades_instrument   ON trades (instrument_id);
 CREATE INDEX idx_instruments_symbol  ON instruments (symbol);
 CREATE INDEX idx_instruments_exchange ON instruments (exchange_id);
--- BRIN index for append-only time-series (large tables)
 CREATE INDEX idx_trades_ts_brin      ON trades USING BRIN (timestamp);

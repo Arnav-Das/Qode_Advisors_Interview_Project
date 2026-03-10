@@ -1,7 +1,3 @@
-"""
-F&O Data Loader — DuckDB
-Loads Kaggle NSE F&O CSV into a normalized DuckDB database.
-"""
 import duckdb
 import pandas as pd
 
@@ -10,7 +6,6 @@ CSV_PATH = "nse_fo_3m.csv"   # Kaggle dataset CSV
 
 con = duckdb.connect(DB_PATH)
 
-# ── Create schema ──────────────────────────────────────────────────────────────
 con.execute("""
 CREATE TABLE IF NOT EXISTS exchanges (
     exchange_id   INTEGER PRIMARY KEY,
@@ -60,13 +55,12 @@ CREATE TABLE IF NOT EXISTS trades (
 );
 """)
 
-# ── Load raw CSV ───────────────────────────────────────────────────────────────
 print("Loading CSV...")
 df = pd.read_csv(CSV_PATH, parse_dates=["TIMESTAMP", "EXPIRY_DT"])
 df.columns = [c.lower() for c in df.columns]
 print(f"Rows loaded: {len(df):,}")
 
-# ── Populate instruments ───────────────────────────────────────────────────────
+# Populate instruments 
 instr = df[["symbol", "instrument"]].drop_duplicates().reset_index(drop=True)
 instr["instrument_id"] = instr.index + 1
 instr["exchange_id"]   = 1  # NSE default; extend for BSE/MCX
@@ -74,12 +68,12 @@ instr["series"]        = None
 instr = instr.rename(columns={"instrument": "instrument_type"})
 con.execute("INSERT INTO instruments SELECT instrument_id, exchange_id, symbol, instrument_type, series FROM instr")
 
-# ── Populate expiries ──────────────────────────────────────────────────────────
+# Populate expiries 
 exp = df[["expiry_dt", "strike_pr", "option_typ"]].drop_duplicates().reset_index(drop=True)
 exp["expiry_id"] = exp.index + 1
 con.execute("INSERT INTO expiries SELECT expiry_id, expiry_dt, strike_pr, option_typ FROM exp")
 
-# ── Populate trades ────────────────────────────────────────────────────────────
+# Populate trades 
 trades = df.merge(instr[["symbol","instrument_type","instrument_id"]], left_on=["symbol","instrument"], right_on=["symbol","instrument_type"])
 trades = trades.merge(exp[["expiry_dt","strike_pr","option_typ","expiry_id"]], on=["expiry_dt","strike_pr","option_typ"])
 trades["trade_id"] = range(1, len(trades)+1)

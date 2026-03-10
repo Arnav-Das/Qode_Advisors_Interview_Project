@@ -48,16 +48,7 @@ making incremental ingestion (HFT-style) clean and consistent.
 ├── notebook/
 │   └── load_data.ipynb     # DuckDB CSV ingestion notebook
 └── reasoning/
-    └── design_reasoning.md # Design rationale document
-```
-
-## Setup
-```bash
-# Using DuckDB (recommended for local testing)
-pip install duckdb pandas
-
-# Or PostgreSQL
-psql -U postgres -f ddl/schema.sql
+    └── design_reasoning.pdf # Design rationale document
 ```
 
 ## Dataset
